@@ -19,14 +19,13 @@
         #card {
             text-align: center;
             background: rgba(255, 255, 255, 0.2);
-            padding: 50px;
+            padding: 40px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             border: 1px solid rgba(255,255,255,0.3);
             width: 350px;
             min-height: 400px;
-            /* WICHTIG: Erlaubt dem Button, sich innerhalb der Karte zu bewegen */
             position: relative; 
             display: flex;
             flex-direction: column;
@@ -49,19 +48,21 @@
         h1 {
             color: white;
             text-shadow: 1px 1px 5px rgba(0,0,0,0.1);
-            font-size: 1.5rem;
-            margin-bottom: 40px;
+            font-size: 1.6rem;
+            margin-bottom: 30px;
         }
 
-        .buttons {
+        .btn-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
             width: 100%;
-            height: 100px; /* Platz für das Button-Springen */
-            position: relative;
+            height: 50px;
         }
 
         button {
             padding: 12px 25px;
-            font-size: 1rem;
+            font-size: 1.1rem;
             border: none;
             border-radius: 50px;
             cursor: pointer;
@@ -73,15 +74,12 @@
             background-color: #2ecc71;
             color: white;
             box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
-            position: absolute;
-            left: 20px; /* Feste Startposition */
+            z-index: 5;
         }
 
         #noBtn {
             background-color: #e74c3c;
             color: white;
-            position: absolute;
-            right: 20px; /* Feste Startposition */
             transition: all 0.2s ease;
             z-index: 10;
         }
@@ -90,11 +88,20 @@
             display: none;
             text-align: center;
             color: white;
+            animation: fadeIn 0.8s;
         }
 
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+
+        .confetti {
+            position: fixed;
+            font-size: 24px;
+            user-select: none;
+            z-index: 1000;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -104,16 +111,19 @@
         <div id="mainContent">
             <div class="heart">❤️</div>
             <h1>Will you be my valentine?</h1>
-            <div class="buttons">
+            <div class="btn-container">
                 <button id="yesBtn" onclick="showSuccess()">Yes</button>
                 <button id="noBtn" onmouseover="moveNoButton()" onclick="moveNoButton()">No</button>
             </div>
         </div>
 
         <div id="successMessage">
-            <div style="font-size: 80px;">🥰</div>
-            <h1>Juhu! ❤️</h1>
-            <p>Ich hab's gewusst!</p>
+            <div style="font-size: 80px; margin-bottom: 15px;">🥰</div>
+            <h1>Juhu, da freue ich mich aber du Räuber! ❤️</h1>
+            <p style="font-size: 1.2rem; line-height: 1.6;">
+                <strong>14.02. um 19:00 Uhr</strong><br>
+                Enchilada Minden
+            </p>
         </div>
     </div>
 
@@ -124,15 +134,21 @@
         const successMessage = document.getElementById('successMessage');
 
         function moveNoButton() {
+            
+            if (noBtn.style.position !== 'absolute') {
+                noBtn.style.position = 'absolute';
+            }
+
             const cardWidth = card.clientWidth;
             const cardHeight = card.clientHeight;
 
-            const padding = 30;
+            const padding = 40;
+
             const maxX = cardWidth - noBtn.offsetWidth - padding;
             const maxY = cardHeight - noBtn.offsetHeight - padding;
 
-            const randomX = Math.floor(Math.random() * maxX);
-            const randomY = Math.floor(Math.random() * maxY);
+            const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
 
             noBtn.style.left = randomX + "px";
             noBtn.style.top = randomY + "px";
@@ -142,6 +158,32 @@
             mainContent.style.display = 'none';
             successMessage.style.display = 'block';
             document.body.style.background = "radial-gradient(circle, #ff758c, #ff7eb3)";
+            
+            for(let i = 0; i < 40; i++) {
+                setTimeout(createConfetti, i * 50);
+            }
+        }
+
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.innerText = '❤️';
+            confetti.classList.add('confetti');
+            confetti.style.left = Math.random() * 100 + 'vw';
+            const duration = Math.random() * 3 + 2;
+            confetti.style.transition = `top ${duration}s linear, opacity ${duration}s`;
+            confetti.style.top = '-50px';
+            confetti.style.opacity = '1';
+            
+            document.body.appendChild(confetti);
+
+            setTimeout(() => {
+                confetti.style.top = (window.innerHeight + 50) + 'px';
+                confetti.style.opacity = '0';
+            }, 100);
+
+            setTimeout(() => {
+                confetti.remove();
+            }, duration * 1000);
         }
     </script>
 </body>
